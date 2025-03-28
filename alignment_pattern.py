@@ -14,7 +14,6 @@ grid = 13    # int(input("Value for a: "))     # value for a
 if grid == 1:
     print(str(1))
 
-#a = [[0]*grid] * grid
 # Method 2: Using list comprehension (more concise)
 a = [[0 for j in range(grid)] for i in range(grid)]
 middle = int((grid-1)/2)

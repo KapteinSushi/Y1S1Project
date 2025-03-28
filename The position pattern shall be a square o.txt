@@ -1,0 +1,29 @@
+The position pattern shall be a square of size p >= 4 where p is an even integer.
+
+The position pattern must adhere to the sequence pattern below:
+
+"Example where p = 4:
+1 1 1 0
+1 1 1 0
+1 1 1 0
+0 0 0 0"
+
+"Example where p = 6:
+0 0 0 0 0 1
+0 1 1 1 0 1
+0 1 1 1 0 1
+0 1 1 1 0 1
+0 0 0 0 0 1
+1 1 1 1 1 1"
+
+"Example where p = 8:
+1 1 1 1 1 1 1 0
+1 0 0 0 0 0 1 0
+1 0 1 1 1 0 1 0
+1 0 1 1 1 0 1 0
+1 0 1 1 1 0 1 0
+1 0 0 0 0 0 1 0
+1 1 1 1 1 1 1 0
+0 0 0 0 0 0 0 0"
+
+Can you please give me pyton code to generete thease paterns with a simple algoritham?
