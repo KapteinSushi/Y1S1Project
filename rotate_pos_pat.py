@@ -30,9 +30,17 @@ def create_symmetrical_array(size):
             rimValue = int(1)
             rect_length = 3
             firstExecution = False
+<<<<<<< HEAD
 
         # Get the bottom left index for the next outer rim (It represents )
         offset_position = (startIndex + (i+1), startIndex + (i+1))
+=======
+        #print ("rect_length:" + str(rect_length))
+
+        # Get the bottom left index for the next outer rim (It represents )
+        offset_position = (startIndex + (i+1), startIndex + (i+1))
+        #print ("offset_position:" + str(offset_position))
+>>>>>>> 8706ce800e23220b44461e97f52dd94f4bdf0b36
         
         # Generate the positions for the rectangle      
         surrounding_positions = generate_rectangle_positions(offset_position, runCount - (i+2))
@@ -65,12 +73,31 @@ def generate_rectangle_positions(position, length):
     """
     positions = []
     row, col = position
+<<<<<<< HEAD
 
     # Calculate the rectangle corners
     top =  length
     bottom = row
     left = length
     right = row
+=======
+    # subtract one form the length because indexing start at 0
+    # length = length -1   
+
+    # Calculate the rectangle corners
+    #top = row - length 
+    top =  length
+    #print("top:" + str(top) )
+    bottom = row
+    #print("bottom:" + str(bottom) )
+    #left = col - length
+    left = length
+    #print("left:" + str(left) )
+    right = row
+    #print("right:" + str(right))
+    #print("---------------------")
+    
+>>>>>>> 8706ce800e23220b44461e97f52dd94f4bdf0b36
 
     # Top edge
     for c in range(left, right + 1):
@@ -92,12 +119,27 @@ def generate_rectangle_positions(position, length):
 
 array = create_symmetrical_array(size=8)
 
+<<<<<<< HEAD
 # Rotate the array to go into the bottom left and top right corners
+=======
+>>>>>>> 8706ce800e23220b44461e97f52dd94f4bdf0b36
 # Turn the array into a matrix
 rotate_array = np.array(array)
 rotate_90 = np.rot90(rotate_array)
 rotate_180 = np.rot90(np.rot90(rotate_90))
 #stdio.writeln(rotate_180)
 
+<<<<<<< HEAD
 for i in rotate_180:
     stdio.writeln(" ".join(map(str, i)))
+=======
+for i in rotate_array:
+    stdio.writeln(" ".join(map(str, i)))
+
+'''
+# Call the function
+array = create_symmetrical_array(size=16)
+# Print result to the console.
+for row in array:
+    print(" ".join(map(str, row)))  '''
+>>>>>>> 8706ce800e23220b44461e97f52dd94f4bdf0b36
