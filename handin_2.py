@@ -267,7 +267,7 @@ def main():
         guide = allign_corner
         for i in range(allign_size):
             for j in range(allign_size):
-                arr_main[guide][allign_corner + j] = a[guide][j]
+                arr_main[guide][allign_corner + j] = a[i][j]
             guide += 1
 
 
