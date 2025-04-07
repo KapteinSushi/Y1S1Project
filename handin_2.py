@@ -2,25 +2,129 @@ import sys
 import math
 import stdio
 import stdarray
-import numpy as np
-
-#grid_size = sys.argv[1]
-#pospatsize = sys.argv[2]
-#allignpatsize = sys.argv[3]
-#string = sys.argv[4]
 
 def main():
 
-    grid_size = 12
-    pospatsize = 4
+    #parameter = int(sys.argv[1])
+    #grid_size = int(sys.argv[2])
+    #pospatsize = int(sys.argv[3])
+    #allign_size = int(sys.argv[4])
+    #string = stdio.readAll()
+
+    # Validate if all 4 arguments are give, no more and no less
+    #print(len(sys.argv))
+    
+    '''
+    if len(sys.argv) < 5:
+        stdio.writeln("ERROR: Too few arguments")
+        sys.exit()
+    elif len(sys.argv) > 5:
+        stdio.writeln("ERROR: Too many arguments")
+        sys.exit() 
+        '''
+
+    encoding_parameter = 8
+    grid_size = 25
+    pospatsize = 8
     allign_size = 5
     string = "hello"
 
-    # If the pospatterns can't fit and/or there is no space for encoded message then error and exit program
-    if not grid_size >= grid_size - (2*pospatsize) + 2:
-        print("Insert the errors and exit!")
+    #-------------------------------------------------------
+    # Beginning Errors and conditions
+
+    # encoding parameter validity test
+    if encoding_parameter < 0 or encoding_parameter >= 32:
+        stdio.writeln("ERROR: Invalid encoding argument: " + str(encoding_parameter))
         sys.exit()
 
+    # grid size valididty test
+    if grid_size < 10 or grid_size > 48:
+        stdio.writeln("ERROR: Invalid size argument: " + str(grid_size))
+        sys.exit()
+
+    # position pattern validity test
+    if (not pospatsize >= 4) or (not pospatsize % 2 == 0):
+        stdio.writeln("ERROR: Invalid position pattern size argument: " + str(pospatsize))
+        sys.exit()
+
+    # alignment pattern validity test
+    if allign_size %4 != 1 or allign_size < 1:
+        stdio.writeln("ERROR: Invalid alignment pattern size argument: " + str(allign_size))
+        sys.exit()
+
+    # Function to turn each char into ascii then to binary
+    def string_to_binary(text):
+        return ''.join(format(ord(char), '08b') for char in text)
+
+    #Call the text_to_binary function to convert the inputted string
+    binary_string = ""
+    binary_string += string_to_binary(string)
+    binary_string += "0000"
+    payload_space = grid_size**2 - (3*pospatsize) - allign_size #####Check!!!!!!!!!!!!!!!!!
+
+    if len(binary_string) > payload_space:
+        stdio.writeln("ERROR: Payload too large")
+        sys.exit()
+
+
+    # Get the binary from the encoding parameters
+    # Find the biggest power of 2 that fits into the number
+    v = 1
+    binary_string = ""
+    temp_parameter = encoding_parameter
+    while v <= temp_parameter // 2:
+        v *= 2
+
+    #Eject out powers of 2 in desending order
+    while v > 0:
+        if temp_parameter < v:
+            #stdio.write(0)
+            binary_string = binary_string + str(0)
+        else:
+            #stdio.write(1)
+            binary_string = binary_string + str(1)
+            temp_parameter -= v
+        v //= 2
+    stdio.writeln(binary_string)
+    stdio.writeln(binary_string[2:])
+
+    # Determine if it is GUI mode or command-line mode
+    if binary_string[0] == "1":
+        GUI_mode = True
+    elif binary_string[0] == "0":
+        GUI_mode = False
+    
+    # Determine snake or real mode
+    if binary_string[1] == "0":
+        snake_encode = True
+    elif binary_string[1] == "1":
+        snake_encode = False
+
+    mask_pattern = binary_string[2:]   #Hand-in 2: 000, 001, 010
+
+    
+    def masking_xor(x, y):
+        # Hand-in 2 masking function
+        if mask_pattern == "000":
+            #print("1 == 0 ; no masking")
+            return False
+        elif mask_pattern == "001":
+            #print("y%2 == 0")
+            if y%2 == "0":
+                return True
+            else:
+                return False
+        elif mask_pattern == "010":
+            #print("x%3 == 0")
+            if x%3 == "0":
+                return True
+            else:
+                return False
+
+    #print(mask_pattern)
+
+    # End of position patern
+    #-------------------------------------------------------
 
     ########################################################
 
@@ -56,7 +160,7 @@ def main():
                 rect_length = 3
                 firstExecution = False
 
-            # Get the bottom left index for the next outer rim (It represents )
+            # Get the bottom right index for the next outer rim (It represents )
             offset_position = (startIndex + (i+1), startIndex + (i+1))
             
             # Generate the positions for the rectangle      
@@ -115,7 +219,7 @@ def main():
         
         return positions
 
-    arrpos = create_symmetrical_array(size=pospatsize)      ################  CHECK AND MODIFY!!!!!!!!!!!!!!!!!!
+    arrpos = create_symmetrical_array(size=pospatsize)      ################  CHECK AND MODIFY IF NEEDED!!!!!!!!!
 
     # End of position patern
     #-------------------------------------------------------
@@ -125,16 +229,27 @@ def main():
     #-------------------------------------------------------
     # Beginig of rotate position pattern
 
-    rotate_array = np.array(arrpos)
-    rotate_90 = np.rot90(rotate_array)
-    rotate_180 = np.rot90(np.rot90(rotate_90))
-    #stdio.writeln(rotate_180)
+    # Function for rotating the position pattern 90 dgrees counter clockwise
+    # I do this by switching the data in the rows(down) with the data in the cols(across)
+    def rotate90_cc(array):
+        row = pospatsize
+        col = pospatsize
+        arr_rotate = stdarray.create2D(pospatsize, pospatsize, 0)
+        for j in range(col):
+            for i in range(row-1 , -1, -1):
+                arr_rotate[col-j-1][i] = array[i][j]
+        return arr_rotate
+    
+    # Using the rotate function, rotate position pattern 3 tipes to reach the desired angle
+    rotate_90 = rotate90_cc(arrpos)
+    rotate_180 = rotate90_cc(rotate_90)
+    rotate_180 = rotate90_cc(rotate_180)
 
     # 90 degree rotate goes in the bottom left corner
     stdio.writeln("90 degree rotate:")
     for i in rotate_90:
         stdio.writeln(" ".join(map(str, i)))
-
+                                                   
     stdio.writeln('''
     180 degree rotate:''')
 
@@ -160,7 +275,7 @@ def main():
     #if allign_size == 1:
     #    print(str(1))
 
-    # Method 2: Using list comprehension (more concise)
+    # Create array and populate the middle with a 1
     a = [[0 for j in range(allign_size)] for i in range(allign_size)]
     middle = int((allign_size-1)/2)
     a[middle][middle] = 1
@@ -169,7 +284,7 @@ def main():
     colcount = middle   # a=5; middle=2; colcount=2     # a=9; middle=4; colcount=4
     rowup = middle - 1    # a=5; middle=2; rowup=1      # a=9; middle=4; rowup=3
 
-    # Find the rows at the top of middle:
+    # Find the rows at the top of middle
     while rowup >= 0:
         if (rowup != 0) and (rowup%2 != 0):     # if it is in a row that contains many 0's
             rowcount -= 1   # a=5: 1 ; a=9: 3, 
@@ -190,8 +305,7 @@ def main():
     colcount = middle       # a=5; middle=2; colcount=2     # a=9; middle=4; colcount=4
     rowdown = middle + 1    # a=5, middle=2; rowdown=3      # a=9; middle=4; rowdown=5
 
-    # Find the rows at the bottom of middle:
-
+    # Find the rows at the bottom of middle
     while rowdown <= allign_size-1:
         if (rowdown != 8) and (rowdown%2 != 0):     # if it is in a row that contains many 0's
             rowcount -= 1   # a=5: 1 ; a=9: 3, 
@@ -220,8 +334,19 @@ def main():
             elif j == (allign_size-1):     #col
                 stdio.write(str(a[i][j]))
         stdio.writeln()
+    stdio.writeln()
 
     # Ending of allignment pattern
+    #-------------------------------------------------------
+
+    ########################################################
+
+    #-------------------------------------------------------
+    # Begining of snake bit layout
+
+    print("test")
+
+    # Ending of snake bit layout
     #-------------------------------------------------------
 
     ########################################################
@@ -231,24 +356,23 @@ def main():
 
     grid = grid_size    # grid_size = 12
     arr_main = stdarray.create2D(grid, grid, 0)
-    print("test")
 
-    firstflag = True
+    #firstflag = True
 
     # Top left position pattern
     for i in range(pospatsize):
         for j in range(pospatsize):
             arr_main[i][j] = arrpos[i][j]
 
-    # Top right position pattern
+    #Top right position pattern
     for i in range(pospatsize):
         top_right = grid - pospatsize    #p=4; grid=12; =8
         for j in range(pospatsize):
             arr_main[i][top_right] = rotate_180[i][j]
             top_right += 1
 
-    # Bottom left position pattern
-    arr_90 = rotate_90.tolist()
+    #Bottom left position pattern
+    arr_90 = rotate_90
 
     bottom_left = grid - pospatsize
     for i in range(pospatsize):
@@ -258,7 +382,7 @@ def main():
     
     #arr_main[grid - pospatsize - 1][grid - pospatsize - 1] = 1
 
-    # Alignment pattern
+    #Alignment pattern
     allign_corner = grid -pospatsize -1
 
     if allign_size == 1:
@@ -271,11 +395,11 @@ def main():
             guide += 1
 
 
-    # Display the Qr code, fixes np issue with normal method
+    # Display the Qr code
     for i in arr_main:
         stdio.writeln(" ".join(map(str, i)))
 
-    # Ending of grid size and adding everything togrther
+    # Ending of grid size and adding everything together
     #-------------------------------------------------------
-
+    
 if __name__ == "__main__": main()
