@@ -72,3 +72,7 @@ for i in string:
     print(i)
     ascii_value = ord(i)
     stdio.write(ascii_value + ", ")
+
+grid_size = 24
+for j in range(grid_size-1, -1, -1):
+    print(j)

@@ -5,29 +5,42 @@ import stdarray
 
 def main():
 
-    #parameter = int(sys.argv[1])
-    #grid_size = int(sys.argv[2])
-    #pospatsize = int(sys.argv[3])
-    #allign_size = int(sys.argv[4])
-    #string = stdio.readAll()
-
-    # Validate if all 4 arguments are give, no more and no less
-    #print(len(sys.argv))
-    
-    '''
     if len(sys.argv) < 5:
         stdio.writeln("ERROR: Too few arguments")
         sys.exit()
     elif len(sys.argv) > 5:
         stdio.writeln("ERROR: Too many arguments")
         sys.exit() 
-        '''
 
-    encoding_parameter = 18
-    grid_size = 12
-    pospatsize = 4
-    allign_size = 5
-    string = "Hi"
+
+    if type(sys.argv[1]) != int and sys.argv[1] != "0":
+        stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[1])
+        sys.exit()
+    elif type(sys.argv[2]) != int:
+        stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[2])
+        sys.exit()
+    elif type(sys.argv[3]) != int:
+        stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[3])
+        sys.exit()
+    elif type(sys.argv[4]) != int:
+        stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[4])
+        sys.exit()
+
+    encoding_parameter = int(sys.argv[1])
+    grid_size = int(sys.argv[2])
+    pospatsize = int(sys.argv[3])
+    allign_size = int(sys.argv[4])
+    string = stdio.readAll()
+
+    # Validate if all 4 arguments are give, no more and no less
+    #print(len(sys.argv))
+        
+
+    #encoding_parameter = 18
+    #grid_size = 12
+    #pospatsize = 4
+    #allign_size = 5
+    #string = "Hi"
 
     #-------------------------------------------------------
     # Beginning Errors and conditions
@@ -61,7 +74,27 @@ def main():
     binary_string += string_to_binary(string)
     binary_string += "0000"
     payload_space = grid_size**2 - (3* pospatsize**2) - allign_size**2 #####Check!!!!!!!!!!!!!!!!!
-    stdio.writeln(binary_string)
+    #stdio.writeln(binary_string)
+
+    # If one position pattern is bigger than the grid, error
+    if pospatsize >= grid_size:
+        stdio.writeln("ERROR: Alignment/position pattern out of bounds")
+        sys.exit()
+    # If one allign pattern is biggr than the grid, error
+    elif allign_size >= grid_size:
+        stdio.writeln("ERROR: Alignment/position pattern out of bounds")
+        sys.exit()
+    # If both position patterns are bigger than the grid, error
+    elif 2*pospatsize > grid_size:
+        stdio.writeln("ERROR: Alignment/position pattern out of bounds")
+        sys.exit()
+    elif pospatsize + allign_size > grid_size:
+        stdio.writeln("ERROR: Alignment/position pattern out of bounds")
+        sys.exit()
+
+    if len(binary_string) > 255:
+        stdio.writeln("ERROR: Payload too large")
+        sys.exit()
 
     if len(binary_string) > payload_space:
         stdio.writeln("ERROR: Payload too large")
@@ -85,15 +118,25 @@ def main():
             binary_parameter = binary_parameter + str(1)
             temp_parameter -= v
         v //= 2
-    stdio.writeln(binary_parameter)
-    stdio.writeln(binary_parameter[2:])
+    #stdio.writeln(binary_parameter)
+    #stdio.writeln(binary_parameter[2:])
 
     # Determine if it is GUI mode or command-line mode
-    if binary_string[0] == "1":
+    if binary_parameter[0] == "1":
         GUI_mode = True
-    elif binary_string[0] == "0":
+    elif binary_parameter[0] == "0":
         GUI_mode = False
     
+    
+
+    # Hand-in 2 if GUI mode or Real mode then terminate program
+    if GUI_mode:
+        sys.exit()
+    
+    # If Real mode the terminate
+    if binary_parameter[0] == "1":
+        sys.exit()
+
     # Determine snake or real mode
     if binary_string[1] == "0":
         snake_encode = True
@@ -102,6 +145,7 @@ def main():
 
     mask_pattern = binary_string[2:]   #Hand-in 2: 000, 001, 010
     
+    '''
     def masking_xor(x, y):
         # Hand-in 2 masking function
         if mask_pattern == "000":
@@ -119,7 +163,7 @@ def main():
                 return True
             else:
                 return False
-            
+    '''
 
     #print(mask_pattern)
 
@@ -244,16 +288,18 @@ def main():
     rotate_180 = rotate90_cc(rotate_180)
 
     # 90 degree rotate goes in the bottom left corner
-    stdio.writeln("90 degree rotate:")
-    for i in rotate_90:
-        stdio.writeln(" ".join(map(str, i)))
+    
+
+    #stdio.writeln("90 degree rotate:")
+    #for i in rotate_90:
+    #    stdio.writeln(" ".join(map(str, i)))
                                                    
-    stdio.writeln('''
-    180 degree rotate:''')
+    #stdio.writeln('''
+    #180 degree rotate:''')
 
     # 180 degree rotate goes in the top right corner
-    for i in rotate_180:
-        stdio.writeln(" ".join(map(str, i)))
+    #for i in rotate_180:
+    #    stdio.writeln(" ".join(map(str, i)))
 
     # Ending of rotate position pattern
     #-------------------------------------------------------
@@ -321,10 +367,14 @@ def main():
         rowdown += 1
 
     #####
-    stdio.writeln('''------------------
-    Allignment pattern
-    ------------------''')
+
+    #stdio.writeln('''------------------
+    #Allignment pattern
+    #------------------''')
+
     #####
+
+    '''
     for i in range(allign_size):
         for j in range(allign_size):     #col
             if j != (allign_size-1):       #col
@@ -333,6 +383,7 @@ def main():
                 stdio.write(str(a[i][j]))
         stdio.writeln()
     stdio.writeln()
+    '''
 
     # Ending of allignment pattern
     #-------------------------------------------------------
@@ -430,7 +481,7 @@ def main():
     arr_main = stdarray.create2D(grid_size, grid_size, 2)
     arr_padding = [1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1]  #16 data points
     
-    print(binary_string)
+    #print(binary_string)
 
     # Check if the snake needs padding and how much is needed
     if len(binary_string) < payload_space:
@@ -472,6 +523,10 @@ def main():
     #Alignment pattern
     allign_corner = grid -pospatsize -1
 
+    # Check if alignment pattern is inside the grid
+    if ((allign_corner -1) + allign_size) > grid_size -1:
+        stdio.writeln("ERROR: Alignment/position pattern out of bounds")
+
     if allign_size == 1:
         arr_main[allign_corner][allign_corner] = a[0][0]
     else:
@@ -480,7 +535,6 @@ def main():
             for j in range(allign_size):
                 arr_main[guide][allign_corner + j] = a[i][j]
             guide += 1
-
 
     #SNAKE!!!
     string_counter = 0
@@ -543,9 +597,9 @@ def main():
 
     # Display the Qr code
     for i in arr_main:
-        stdio.writeln(" ".join(map(str, i)))
-
+        line = " ".join([str(x) for x in i])
+        stdio.writeln(line)
     # Ending of adding everything
     #-------------------------------------------------------
-    map
+    
 if __name__ == "__main__": main()
