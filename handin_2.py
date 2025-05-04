@@ -23,11 +23,11 @@ def main():
         sys.exit() 
         '''
 
-    encoding_parameter = 18
+    encoding_parameter = 1
     grid_size = 12
     pospatsize = 4
     allign_size = 5
-    string = "Hi"
+    string = "123456"
 
     #-------------------------------------------------------
     # Beginning Errors and conditions
@@ -100,8 +100,9 @@ def main():
     elif binary_string[1] == "1":
         snake_encode = False
 
-    mask_pattern = binary_string[2:]   #Hand-in 2: 000, 001, 010
-    
+    mask_pattern = binary_parameter[2:]   #Hand-in 2: 000, 001, 010
+    print(mask_pattern)
+
     def masking_xor(x, y):
         # Hand-in 2 masking function
         if mask_pattern == "000":
@@ -498,19 +499,19 @@ def main():
                     #print(string_counter)
                     if mask_pattern == "001":
                         #print("y%2 == 0")
-                        if j%2 == "0":
+                        if j%2 == 0:
                             xor = True
                         else:
                             xor = False
                     elif mask_pattern == "010":
                         #print("x%3 == 0")
-                        if i%3 == "0":
+                        if i%3 == 0:
                             xor = True
                         else:
                             xor = False
 
                     if xor:
-                        arr_main[i][j] = int(binary_string[string_counter]) ^ 1
+                        arr_main[i][j] = 1 - int(binary_string[string_counter])
                         string_counter += 1
                     else:
                         arr_main[i][j] = int(binary_string[string_counter])
@@ -522,19 +523,19 @@ def main():
 
                     if mask_pattern == "001":
                         #print("y%2 == 0")
-                        if j%2 == "0":
+                        if j%2 == 0:
                             xor = True
                         else:
                             xor = False
                     elif mask_pattern == "010":
                         #print("x%3 == 0")
-                        if i%3 == "0":
+                        if i%3 == 0:
                             xor = True
                         else:
                             xor = False
 
                     if xor:
-                        arr_main[i][j] = int(binary_string[string_counter]) ^ 1
+                        arr_main[i][j] = 1 - int(binary_string[string_counter])
                         string_counter += 1
                     else:
                         arr_main[i][j] = int(binary_string[string_counter])

@@ -2,8 +2,14 @@ import sys
 import math
 import stdio
 import stdarray
+from qrcodelib import get_error_codewords, get_format_information_bits
+
+#REAL LAYOUT CONDITIONS: grid = 25; pospatsize = 8; allign_size = 5;
+#DARK CELL: Must always be "1" at pos[17,8]
 
 def main():
+
+    #ERROR Messages:
 
     if len(sys.argv) < 5:
         stdio.writeln("ERROR: Too few arguments")
@@ -11,26 +17,42 @@ def main():
     elif len(sys.argv) > 5:
         stdio.writeln("ERROR: Too many arguments")
         sys.exit() 
-
-
-    if type(sys.argv[1]) != int and sys.argv[1] != "0":
+    
+    try:
+        encoding_parameter = int(sys.argv[1])
+        #grid_size = int(sys.argv[2])
+        #pospatsize = int(sys.argv[3])
+        #allign_size = int(sys.argv[4])
+        #string = stdio.readAll()
+    except ValueError:
         stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[1])
         sys.exit()
-    elif type(sys.argv[2]) != int:
+
+    try:
+        grid_size = int(sys.argv[2])
+    except ValueError:
         stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[2])
         sys.exit()
-    elif type(sys.argv[3]) != int:
-        stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[3])
+    
+    try:
+        pospatsize = int(sys.argv[3])
+    except ValueError:
+        stdio.writeln("ERROR: Invalid position pattern size argument: " + sys.argv[3])
         sys.exit()
-    elif type(sys.argv[4]) != int:
+
+    try:
+        allign_size = int(sys.argv[4])
+    except ValueError:
         stdio.writeln("ERROR: May only use integer arguments: " + sys.argv[4])
         sys.exit()
 
-    encoding_parameter = int(sys.argv[1])
-    grid_size = int(sys.argv[2])
-    pospatsize = int(sys.argv[3])
-    allign_size = int(sys.argv[4])
     string = stdio.readAll()
+
+    #encoding_parameter = int(sys.argv[1])
+    #grid_size = int(sys.argv[2])
+    #pospatsize = int(sys.argv[3])
+    #allign_size = int(sys.argv[4])
+    #string = stdio.readAll()
 
     # Validate if all 4 arguments are give, no more and no less
     #print(len(sys.argv))
@@ -71,11 +93,13 @@ def main():
 
     #Call the text_to_binary function to convert the inputted string
     binary_string = "0100"
+    binary_string += format(len(string), '08b')
     binary_string += string_to_binary(string)
     binary_string += "0000"
     payload_space = grid_size**2 - (3* pospatsize**2) - allign_size**2 #####Check!!!!!!!!!!!!!!!!!
     #stdio.writeln(binary_string)
 
+    # Continue with error messages:
     # If one position pattern is bigger than the grid, error
     if pospatsize >= grid_size:
         stdio.writeln("ERROR: Alignment/position pattern out of bounds")
@@ -100,70 +124,42 @@ def main():
         stdio.writeln("ERROR: Payload too large")
         sys.exit()
 
-    # Get the binary from the encoding parameters
-    # Find the biggest power of 2 that fits into the number
-    v = 1
-    binary_parameter = ""
-    temp_parameter = encoding_parameter
-    while v <= temp_parameter // 2:
-        v *= 2
+    binary_parameter = format(encoding_parameter, '05b')
+    #print(binary)
 
-    # Eject out powers of 2 in desending order
-    while v > 0:
-        if temp_parameter < v:
-            #stdio.write(0)
-            binary_parameter = binary_parameter + str(0)
-        else:
-            #stdio.write(1)
-            binary_parameter = binary_parameter + str(1)
-            temp_parameter -= v
-        v //= 2
     #stdio.writeln(binary_parameter)
     #stdio.writeln(binary_parameter[2:])
 
     # Determine if it is GUI mode or command-line mode
+    #GUI_mode = False
+
+    GUI_mode = None
     if binary_parameter[0] == "1":
         GUI_mode = True
     elif binary_parameter[0] == "0":
         GUI_mode = False
-    
-    
 
+    #############################################REMEMBER####################################################
     # Hand-in 2 if GUI mode or Real mode then terminate program
-    if GUI_mode:
-        sys.exit()
+    #if GUI_mode:
+        #sys.exit()
     
-    # If Real mode the terminate
-    if binary_parameter[0] == "1":
-        sys.exit()
-
+    # If Real mode
+    real_mode = None
+    if binary_parameter[1] == "1":
+        real_mode = True
+    elif binary_parameter[1] == "0":
+        real_mode = False
+    
+    ###### Check to see if this code is redundent!!!!
     # Determine snake or real mode
-    if binary_string[1] == "0":
+    if binary_parameter[1] == "0":
         snake_encode = True
-    elif binary_string[1] == "1":
+    elif binary_parameter[1] == "1":
         snake_encode = False
 
-    mask_pattern = binary_string[2:]   #Hand-in 2: 000, 001, 010
-    
-    '''
-    def masking_xor(x, y):
-        # Hand-in 2 masking function
-        if mask_pattern == "000":
-            #print("1 == 0 ; no masking")
-            return False
-        elif mask_pattern == "001":
-            #print("y%2 == 0")
-            if y%2 == "0":
-                return True
-            else:
-                return False
-        elif mask_pattern == "010":
-            #print("x%3 == 0")
-            if x%3 == "0":
-                return True
-            else:
-                return False
-    '''
+    mask_pattern = binary_parameter[2:]   #Hand-in 2: 000, 001, 010;
+    #Hand-in 3: 000, 001, 010, 011, 100, 101, 110, 111
 
     #print(mask_pattern)
 
@@ -287,19 +283,6 @@ def main():
     rotate_180 = rotate90_cc(rotate_90)
     rotate_180 = rotate90_cc(rotate_180)
 
-    # 90 degree rotate goes in the bottom left corner
-    
-
-    #stdio.writeln("90 degree rotate:")
-    #for i in rotate_90:
-    #    stdio.writeln(" ".join(map(str, i)))
-                                                   
-    #stdio.writeln('''
-    #180 degree rotate:''')
-
-    # 180 degree rotate goes in the top right corner
-    #for i in rotate_180:
-    #    stdio.writeln(" ".join(map(str, i)))
 
     # Ending of rotate position pattern
     #-------------------------------------------------------
@@ -308,16 +291,6 @@ def main():
 
     #-------------------------------------------------------
     # Begining of allignment pattern
-
-    #allign_size = 13    # int(input("Value for a: "))     # value for a
-
-    #rows = grid
-    #cols = grid
-    #row = grid-1
-    #col = grid-1
-
-    #if allign_size == 1:
-    #    print(str(1))
 
     # Create array and populate the middle with a 1
     a = [[0 for j in range(allign_size)] for i in range(allign_size)]
@@ -366,108 +339,8 @@ def main():
                 a[i][colcount] = 1
         rowdown += 1
 
-    #####
-
-    #stdio.writeln('''------------------
-    #Allignment pattern
-    #------------------''')
-
-    #####
-
-    '''
-    for i in range(allign_size):
-        for j in range(allign_size):     #col
-            if j != (allign_size-1):       #col
-                stdio.write(str(a[i][j]) + " ")
-            elif j == (allign_size-1):     #col
-                stdio.write(str(a[i][j]))
-        stdio.writeln()
-    stdio.writeln()
-    '''
 
     # Ending of allignment pattern
-    #-------------------------------------------------------
-
-    ########################################################
-
-    #-------------------------------------------------------
-    # Begining of snake bit layout
-    
-    '''
-    arr_main = stdarray.create2D(grid_size, grid_size, 2)
-    arr_padding = [1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1]  #16 data points
-    
-    print(binary_string)
-
-    # Check if the snake needs padding and how much is needed
-    if len(binary_string) < payload_space:
-        padding_amount = payload_space - len(binary_string)
-        while len(binary_string) < payload_space:
-            for i in range(len(arr_padding)):
-                if padding_amount != 0:
-                    binary_string += str(arr_padding[i])
-                    padding_amount -= 1
-    print(binary_string)
-    '''
-
-    '''
-    # Count how many 2s have to bee filled
-    fill_count = 0
-    for i in arr_main:
-        for j in i:
-            if j == 2:
-                fill_count += 1
-
-    # Fill binary_string to match exactly
-    if len(binary_string) < fill_count:
-        padding_amount = fill_count - len(binary_string)
-        pad_index = 0
-        while padding_amount > 0:
-            binary_string += str(arr_padding[pad_index])
-            pad_index = (pad_index + 1) % len(arr_padding)
-            padding_amount -= 1       
-    '''    
-
-    '''
-    def snake_col_direction(even_row):
-        print("hi")
-        if not even_row:
-            for j in range(grid_size, -1, -1):
-                print("hi")'
-    '''
-    #
-    #
-    '''
-    string_counter = 0
-    for i in range(grid_size):
-
-        # If the row index is even, go from left to right
-        if i%2 == 0:
-            for j in range(grid_size):
-                if arr_main[i][j] == 2:
-                    print(string_counter)
-                    #arr_main[i][j] = binary_string[127]
-                    string_counter += 1
-        # If the row index is not even, go from right to left
-        elif i%2 != 0:
-            for j in range(grid_size -1, -1, -1):
-                if arr_main[i][j] == 2:
-                    #arr_main[i][j] = int(binary_string[string_counter])
-                    string_counter += 1
-    print(string_counter)
-
-    '''
-    '''
-    string_counter = 0
-    for i in range(grid_size):
-        for j in range(grid_size):
-            if arr_main[i][j] == 2:
-                string_counter += 1
-
-    print("Number of 2s:", string_counter)
-    '''
-
-    # Ending of snake bit layout
     #-------------------------------------------------------
 
     ########################################################
@@ -491,11 +364,7 @@ def main():
                 if padding_amount != 0:
                     binary_string += str(arr_padding[i])
                     padding_amount -= 1
-    #print(binary_string)
     # End of Snake declare
-
-
-    #firstflag = True
 
     # Top left position pattern
     for i in range(pospatsize):
@@ -517,8 +386,6 @@ def main():
         for j in range(pospatsize):
             arr_main[bottom_left][j] = arr_90[i][j]
         bottom_left += 1
-    
-    #arr_main[grid - pospatsize - 1][grid - pospatsize - 1] = 1
 
     #Alignment pattern
     allign_corner = grid -pospatsize -1
@@ -538,10 +405,12 @@ def main():
 
     #SNAKE!!!
     string_counter = 0
-    xor = False
+    xor = None
     if mask_pattern == "000":
             #print("1 == 0 ; no masking")
             xor = False
+
+    xor_num = 0
 
     for i in range(grid_size):
 
@@ -552,19 +421,19 @@ def main():
                     #print(string_counter)
                     if mask_pattern == "001":
                         #print("y%2 == 0")
-                        if j%2 == "0":
+                        if j%2 == 0 and i%2 == 0:
                             xor = True
                         else:
                             xor = False
                     elif mask_pattern == "010":
                         #print("x%3 == 0")
-                        if i%3 == "0":
+                        if i%3 == 0:
                             xor = True
                         else:
                             xor = False
 
                     if xor:
-                        arr_main[i][j] = int(binary_string[string_counter]) ^ 1
+                        arr_main[i][j] = 1 - int(binary_string[string_counter]) 
                         string_counter += 1
                     else:
                         arr_main[i][j] = int(binary_string[string_counter])
@@ -576,19 +445,19 @@ def main():
 
                     if mask_pattern == "001":
                         #print("y%2 == 0")
-                        if j%2 == "0":
+                        if j%2 == 0:
                             xor = True
                         else:
                             xor = False
                     elif mask_pattern == "010":
                         #print("x%3 == 0")
-                        if i%3 == "0":
+                        if i%3 == 0:
                             xor = True
                         else:
                             xor = False
 
                     if xor:
-                        arr_main[i][j] = int(binary_string[string_counter]) ^ 1
+                        arr_main[i][j] = 1 - int(binary_string[string_counter])
                         string_counter += 1
                     else:
                         arr_main[i][j] = int(binary_string[string_counter])
